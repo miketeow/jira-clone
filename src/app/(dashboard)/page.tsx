@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { getCurrent } from "@/features/auth/actions";
-import { UserButton } from "@/features/auth/components/user-button";
-import { CreateWorkspaceForm } from "@/features/workspaces/components/create-workspace-form";
+import { getWorkspaces } from "@/features/workspaces/actions";
 
 export default async function Home() {
   const user = await getCurrent();
@@ -10,9 +9,11 @@ export default async function Home() {
   if (!user) {
     redirect("/sign-in");
   }
-  return (
-    <div className="h-full bg-neutral-500 p-4">
-      <CreateWorkspaceForm />
-    </div>
-  );
+
+  const workspaces = await getWorkspaces();
+  if (workspaces.total === 0) {
+    redirect("/workspaces/create");
+  } else {
+    redirect(`/workspaces/${workspaces.documents[0].$id}`);
+  }
 }
